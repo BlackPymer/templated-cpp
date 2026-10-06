@@ -1,0 +1,1 @@
+/usr/bin/c++ -O3 -DNDEBUG CMakeFiles/lab4.dir/src/main.cpp.o -o lab4  libcocktail_sort.a liboriented_graph.a 

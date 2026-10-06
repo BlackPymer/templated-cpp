@@ -1,0 +1,20 @@
+[
+{
+  "directory": "/home/maksim/Documents/labs/sem3/ppois/lab4/build",
+  "command": "/usr/bin/c++  -I/home/maksim/Documents/labs/sem3/ppois/lab4/include -O3 -DNDEBUG -std=c++17 -Wall -Wextra -Wpedantic -o CMakeFiles/cocktail_sort.dir/src/cocktail_sort/cocktail_sort.cpp.o -c /home/maksim/Documents/labs/sem3/ppois/lab4/src/cocktail_sort/cocktail_sort.cpp",
+  "file": "/home/maksim/Documents/labs/sem3/ppois/lab4/src/cocktail_sort/cocktail_sort.cpp",
+  "output": "CMakeFiles/cocktail_sort.dir/src/cocktail_sort/cocktail_sort.cpp.o"
+},
+{
+  "directory": "/home/maksim/Documents/labs/sem3/ppois/lab4/build",
+  "command": "/usr/bin/c++  -I/home/maksim/Documents/labs/sem3/ppois/lab4/include -O3 -DNDEBUG -std=c++17 -Wall -Wextra -Wpedantic -o CMakeFiles/oriented_graph.dir/src/oriented_graph/oriented_graph.cpp.o -c /home/maksim/Documents/labs/sem3/ppois/lab4/src/oriented_graph/oriented_graph.cpp",
+  "file": "/home/maksim/Documents/labs/sem3/ppois/lab4/src/oriented_graph/oriented_graph.cpp",
+  "output": "CMakeFiles/oriented_graph.dir/src/oriented_graph/oriented_graph.cpp.o"
+},
+{
+  "directory": "/home/maksim/Documents/labs/sem3/ppois/lab4/build",
+  "command": "/usr/bin/c++  -I/home/maksim/Documents/labs/sem3/ppois/lab4/include -O3 -DNDEBUG -std=c++17 -Wall -Wextra -Wpedantic -o CMakeFiles/lab4.dir/src/main.cpp.o -c /home/maksim/Documents/labs/sem3/ppois/lab4/src/main.cpp",
+  "file": "/home/maksim/Documents/labs/sem3/ppois/lab4/src/main.cpp",
+  "output": "CMakeFiles/lab4.dir/src/main.cpp.o"
+}
+]

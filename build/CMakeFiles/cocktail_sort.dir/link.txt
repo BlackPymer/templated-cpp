@@ -1,0 +1,2 @@
+/usr/bin/ar qc libcocktail_sort.a CMakeFiles/cocktail_sort.dir/src/cocktail_sort/cocktail_sort.cpp.o
+/usr/bin/ranlib libcocktail_sort.a
