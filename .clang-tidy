@@ -1,0 +1,9 @@
+Checks: >
+  -*,
+  bugprone-*,
+  -bugprone-easily-swappable-parameters,
+  modernize-use-nullptr,
+  readability-avoid-const-params-in-decls
+
+WarningsAsErrors: ''
+HeaderFilterRegex: 'include/.*'
