@@ -1,5 +1,0 @@
-/home/maksim/Documents/labs/sem3/ppois/lab4/build/CMakeFiles/cocktail_sort.dir
-/home/maksim/Documents/labs/sem3/ppois/lab4/build/CMakeFiles/oriented_graph.dir
-/home/maksim/Documents/labs/sem3/ppois/lab4/build/CMakeFiles/lab4.dir
-/home/maksim/Documents/labs/sem3/ppois/lab4/build/CMakeFiles/edit_cache.dir
-/home/maksim/Documents/labs/sem3/ppois/lab4/build/CMakeFiles/rebuild_cache.dir

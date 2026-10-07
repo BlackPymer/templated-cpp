@@ -1,2 +1,0 @@
-/usr/bin/ar qc liboriented_graph.a CMakeFiles/oriented_graph.dir/src/oriented_graph/oriented_graph.cpp.o
-/usr/bin/ranlib liboriented_graph.a
