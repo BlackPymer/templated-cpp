@@ -23,7 +23,7 @@ target_link_libraries(lab4 PRIVATE cocktail_sort strand_sort oriented_graph)
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "Clang|GNU")
     foreach(target cocktail_sort strand_sort oriented_graph lab4)
-        target_compile_options(${target} PRIVATE -Wall -Wextra -Wpedantic)
+        target_compile_options(${target} PRIVATE -Wall -Wextra -Wpedantic -Werror)
     endforeach()
 endif()
 
@@ -38,7 +38,7 @@ add_executable(lab4_tests
 target_link_libraries(lab4_tests PRIVATE cocktail_sort strand_sort oriented_graph PkgConfig::UNITTESTPP)
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "Clang|GNU")
-    target_compile_options(lab4_tests PRIVATE -Wall -Wextra -Wpedantic)
+    target_compile_options(lab4_tests PRIVATE -Wall -Wextra -Wpedantic -Werror)
 endif()
 
 enable_testing()

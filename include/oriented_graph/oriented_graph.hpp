@@ -4,6 +4,7 @@
 #include <cstddef>
 #include <iterator>
 #include <ostream>
+#include <string>
 #include <type_traits>
 #include <utility>
 #include <vector>
@@ -30,7 +31,8 @@ template <typename T> class OrientedGraph {
         using iterator_category = std::bidirectional_iterator_tag;
 
         VertexIterator() noexcept : graph(nullptr), index(0) {}
-        VertexIterator(graph_pointer owner, size_type index) noexcept : graph(owner), index(index) {}
+        VertexIterator(graph_pointer owner, size_type index) noexcept
+            : graph(owner), index(index) {}
         template <bool Other, typename = std::enable_if_t<Const && !Other>>
         VertexIterator(const VertexIterator<Other> &other) noexcept
             : graph(other.graph), index(other.index) {}
@@ -505,6 +507,8 @@ template <typename T> class OrientedGraph {
     container_type vertices_;
     matrix_type matrix_;
 };
+
+extern template class OrientedGraph<std::string>;
 
 template <typename T> std::ostream &operator<<(std::ostream &os, const OrientedGraph<T> &graph) {
     os << '{';

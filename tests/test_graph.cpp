@@ -26,8 +26,7 @@ Graph makeGraph() {
     return graph;
 }
 
-template <typename Iterator>
-std::vector<std::string> collectValues(Iterator begin, Iterator end) {
+template <typename Iterator> std::vector<std::string> collectValues(Iterator begin, Iterator end) {
     std::vector<std::string> result;
     for (auto it = begin; it != end; ++it)
         result.push_back(*it);
@@ -82,19 +81,20 @@ SUITE(GraphTypeInfo) {
         static_assert(std::is_same_v<Graph::container_type, std::vector<std::string>>);
         static_assert(std::is_same_v<Graph::iterator, Graph::VertexIterator<false>>);
         static_assert(std::is_same_v<Graph::const_iterator, Graph::VertexIterator<true>>);
-        static_assert(std::is_same_v<Graph::reverse_iterator, std::reverse_iterator<Graph::iterator>>);
+        static_assert(
+            std::is_same_v<Graph::reverse_iterator, std::reverse_iterator<Graph::iterator>>);
         static_assert(std::is_same_v<Graph::const_edge_iterator, Graph::EdgeIterator<true>>);
         static_assert(std::is_same_v<Graph::neighbor_iterator, Graph::NeighborIterator<false>>);
         static_assert(
             std::is_same_v<Graph::const_incident_iterator, Graph::IncidentIterator<true>>);
-        static_assert(
-            std::is_same_v<Graph::const_edge_reverse_iterator,
-                           std::reverse_iterator<Graph::const_edge_iterator>>);
+        static_assert(std::is_same_v<Graph::const_edge_reverse_iterator,
+                                     std::reverse_iterator<Graph::const_edge_iterator>>);
         CHECK(true);
     }
 
     TEST(IteratorsAreBidirectional) {
-        static_assert(std::is_same_v<Graph::iterator::iterator_category, std::bidirectional_iterator_tag>);
+        static_assert(
+            std::is_same_v<Graph::iterator::iterator_category, std::bidirectional_iterator_tag>);
         static_assert(std::is_same_v<Graph::edge_iterator::iterator_category,
                                      std::bidirectional_iterator_tag>);
         static_assert(std::is_same_v<Graph::neighbor_iterator::iterator_category,
@@ -211,7 +211,7 @@ SUITE(GraphVertices) {
         Graph graph = makeGraph();
         graph.removeVertex("a");
         CHECK(graph.size() == 3u);
-        CHECK(graph.edgeCount() == 2u);
+        CHECK(graph.edgeCount() == 1u);
         CHECK(neighbors(graph, "b") == std::vector<std::string>({"d"}));
         CHECK(neighbors(graph, "c") == std::vector<std::string>());
         CHECK(neighbors(graph, "d") == std::vector<std::string>());
@@ -350,7 +350,8 @@ SUITE(GraphEdges) {
         CHECK(!graph.hasEdge("a", "b"));
         CHECK(graph.edgeCount() == 4u);
         CHECK_THROW(graph.removeEdge("a", "b"), NoSuchEdgeException);
-        CHECK_THROW(graph.removeEdge("b", "a"), NoSuchVertexException);
+        CHECK_THROW(graph.removeEdge("b", "a"), NoSuchEdgeException);
+        CHECK_THROW(graph.removeEdge("missing", "a"), NoSuchVertexException);
         CHECK_THROW(graph.edgeDegree("a", "b"), NoSuchEdgeException);
     }
 
@@ -368,11 +369,8 @@ SUITE(GraphEdges) {
 
     TEST(EdgeIterationForwardAndBackward) {
         const Graph graph = makeGraph();
-        const std::vector<edge_type> expected = {{"a", "b"},
-                                                 {"a", "c"},
-                                                 {"b", "d"},
-                                                 {"c", "a"},
-                                                 {"d", "a"}};
+        const std::vector<edge_type> expected = {
+            {"a", "b"}, {"a", "c"}, {"b", "d"}, {"c", "a"}, {"d", "a"}};
         CHECK(collectEdges(graph.edgeBegin(), graph.edgeEnd()) == expected);
         CHECK(collectEdgesBack(graph.edgeBegin(), graph.edgeEnd()) ==
               std::vector<edge_type>({{"d", "a"}, {"c", "a"}, {"b", "d"}, {"a", "c"}, {"a", "b"}}));
@@ -381,8 +379,8 @@ SUITE(GraphEdges) {
 
     TEST(EdgeReverseIteration) {
         Graph graph = makeGraph();
-        const std::vector<edge_type> reversed = {{"d", "a"}, {"c", "a"}, {"b", "d"}, {"a", "c"},
-                                                 {"a", "b"}};
+        const std::vector<edge_type> reversed = {
+            {"d", "a"}, {"c", "a"}, {"b", "d"}, {"a", "c"}, {"a", "b"}};
         CHECK(collectEdges(graph.edgeRBegin(), graph.edgeREnd()) == reversed);
         const Graph &constant = graph;
         CHECK(collectEdges(constant.edgeRBegin(), constant.edgeREnd()) == reversed);
@@ -404,7 +402,7 @@ SUITE(GraphEdges) {
         CHECK(*(constIt++) == first);
         constIt--;
         CHECK(*constIt == first);
-        CHECK(constIt.base() == 0u);
+        CHECK(constIt.base() == 1u);
         CHECK(constIt.owner() == &graph);
     }
 
@@ -429,9 +427,10 @@ SUITE(GraphEdges) {
         graph.addEdge("q", "e");
         graph.addEdge("e", "q");
 
-        Graph::edge_iterator next = graph.erase(Graph::const_edge_iterator(&graph, 1));
+        Graph::edge_iterator next = graph.erase(Graph::const_edge_iterator(&graph, 2));
         CHECK(graph.edgeCount() == 2u);
         CHECK(!graph.hasEdge("q", "e"));
+        CHECK(graph.hasEdge("q", "w"));
         CHECK(*next == edge_type("e", "q"));
         CHECK(next != graph.edgeEnd());
     }
@@ -595,7 +594,7 @@ SUITE(GraphIncident) {
         CHECK(*(constIt++) == first);
         constIt--;
         CHECK(constIt == graph.incidentBegin("a"));
-        CHECK(constIt.base() == 0u);
+        CHECK(constIt.base() == 1u);
         CHECK(constIt.owner() == &graph);
         Graph::incident_iterator mutableIt = graph.incidentBegin("a");
         Graph::const_incident_iterator converted = mutableIt;
@@ -617,10 +616,10 @@ SUITE(GraphIncident) {
         graph.addVertex("y");
         graph.addEdge("x", "x");
         graph.addEdge("y", "x");
+        graph.addEdge("y", "y");
         CHECK(incident(graph, "x") == std::vector<edge_type>({{"x", "x"}, {"y", "x"}}));
-        CHECK(incident(graph, "y") == std::vector<edge_type>({{"y", "x"}, {"y", "y"}}).empty()
-                  ? std::vector<edge_type>({{"y", "x"}})
-                  : std::vector<edge_type>({{"y", "x"}}));
+        CHECK(incident(graph, "y") == std::vector<edge_type>({{"y", "x"}, {"y", "y"}}));
+        CHECK(incident(graph, "y").size() == 2u);
     }
 }
 
@@ -761,5 +760,116 @@ SUITE(GraphExceptions) {
         CHECK(std::string(IndexOutOfRangeException().what()).size() > 0u);
         CHECK(std::string(EdgeAlreadyExistsException().what()).size() > 0u);
         CHECK(std::string(NoSuchEdgeException().what()).size() > 0u);
+    }
+}
+
+SUITE(GraphRemainingPaths) {
+    TEST(NonConstReverseVertexIteration) {
+        Graph graph = makeGraph();
+        const std::vector<std::string> reversed = {"d", "c", "b", "a"};
+        CHECK(collectValues(graph.rbegin(), graph.rend()) == reversed);
+        Graph::reverse_iterator it = graph.rbegin();
+        CHECK(*(it++) == "d");
+        CHECK(*it == "c");
+        --it;
+        CHECK(it == graph.rbegin());
+        ++it;
+        ++it;
+        ++it;
+        ++it;
+        CHECK(it == graph.rend());
+        --it;
+        CHECK(collectValuesBack(graph.rbegin(), graph.rend()) ==
+              std::vector<std::string>({"a", "b", "c", "d"}));
+    }
+
+    TEST(ConstAtGivesAccess) {
+        const Graph graph = makeGraph();
+        CHECK(graph.at(0) == "a");
+        CHECK(graph.at(3) == "d");
+        CHECK_THROW(graph.at(4), IndexOutOfRangeException);
+        CHECK_THROW(graph.at(99), IndexOutOfRangeException);
+    }
+
+    TEST(NonConstNeighbourReverseIteration) {
+        Graph graph = makeGraph();
+        CHECK(collectValues(graph.neighborRBegin("a"), graph.neighborREnd("a")) ==
+              std::vector<std::string>({"c", "b"}));
+        std::vector<std::string> values;
+        auto it = graph.neighborREnd("a");
+        while (it != graph.neighborRBegin("a")) {
+            --it;
+            values.push_back(*it);
+        }
+        CHECK(values == std::vector<std::string>({"b", "c"}));
+        Graph::neighbor_reverse_iterator reverseIt(graph.neighborEnd("a"));
+        CHECK(*(reverseIt++) == std::string("c"));
+        CHECK(*reverseIt == std::string("b"));
+    }
+
+    TEST(NonConstIncidentReverseIteration) {
+        Graph graph = makeGraph();
+        const std::vector<edge_type> reversed = {{"a", "b"}, {"b", "d"}};
+        CHECK(collectEdges(graph.incidentRBegin("b"), graph.incidentREnd("b")) == reversed);
+        std::vector<edge_type> values;
+        auto it = graph.incidentREnd("b");
+        while (it != graph.incidentRBegin("b")) {
+            --it;
+            values.push_back(*it);
+        }
+        CHECK(values == std::vector<edge_type>({{"b", "d"}, {"a", "b"}}));
+        Graph::incident_reverse_iterator reverseIt(graph.incidentEnd("b"));
+        CHECK(*(reverseIt++) == edge_type("a", "b"));
+        CHECK(*reverseIt == edge_type("b", "d"));
+    }
+
+    TEST(DecrementBeforeFirstPositionReachesEnd) {
+        Graph graph = makeGraph();
+        Graph::edge_iterator edge = graph.edgeBegin();
+        --edge;
+        CHECK(edge == graph.edgeEnd());
+        Graph::neighbor_iterator neighbour = graph.neighborBegin("a");
+        --neighbour;
+        CHECK(neighbour == graph.neighborEnd("a"));
+        Graph::incident_iterator incident = graph.incidentBegin("a");
+        --incident;
+        CHECK(incident == graph.incidentEnd("a"));
+
+        Graph::edge_iterator edgePostfix = graph.edgeBegin();
+        Graph::edge_iterator unchanged = edgePostfix--;
+        CHECK(unchanged == graph.edgeBegin());
+        CHECK(edgePostfix == graph.edgeEnd());
+        Graph::neighbor_iterator neighbourPostfix = graph.neighborBegin("a");
+        neighbourPostfix--;
+        CHECK(neighbourPostfix == graph.neighborEnd("a"));
+        Graph::incident_iterator incidentPostfix = graph.incidentBegin("a");
+        incidentPostfix--;
+        CHECK(incidentPostfix == graph.incidentEnd("a"));
+
+        const Graph &constant = graph;
+        Graph::const_edge_iterator constEdge = constant.edgeBegin();
+        --constEdge;
+        CHECK(constEdge == constant.edgeEnd());
+        Graph::const_neighbor_iterator constNeighbour = constant.neighborBegin("a");
+        --constNeighbour;
+        CHECK(constNeighbour == constant.neighborEnd("a"));
+        Graph::const_incident_iterator constIncident = constant.incidentBegin("a");
+        --constIncident;
+        CHECK(constIncident == constant.incidentEnd("a"));
+        Graph::const_edge_iterator constEdgePostfix = constant.edgeBegin();
+        constEdgePostfix--;
+        CHECK(constEdgePostfix == constant.edgeEnd());
+    }
+
+    TEST(IncidentRangeStartingWithIncomingEdge) {
+        Graph graph;
+        graph.addVertex("x");
+        graph.addVertex("y");
+        graph.addEdge("y", "x");
+        CHECK(incident(graph, "x") == std::vector<edge_type>({{"y", "x"}}));
+        CHECK(neighbors(graph, "x") == std::vector<std::string>());
+        auto it = graph.incidentBegin("x");
+        --it;
+        CHECK(it == graph.incidentEnd("x"));
     }
 }

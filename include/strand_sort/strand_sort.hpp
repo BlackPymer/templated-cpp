@@ -1,20 +1,15 @@
 #pragma once
 
 #include <algorithm>
+#include <cstddef>
 #include <iterator>
-#include <type_traits>
 #include <utility>
 #include <vector>
 
 template <typename Iterator> class StrandSorter {
     public:
     using iterator_type = Iterator;
-    using iterator_category = typename std::iterator_traits<iterator_type>::iterator_category;
     using value_type = typename std::iterator_traits<iterator_type>::value_type;
-    using reference = typename std::iterator_traits<iterator_type>::reference;
-    using pointer = typename std::iterator_traits<iterator_type>::pointer;
-    using difference_type = typename std::iterator_traits<iterator_type>::difference_type;
-    using size_type = std::make_unsigned_t<difference_type>;
 
     void Sort(iterator_type begin, iterator_type end);
 };
@@ -25,19 +20,17 @@ void StrandSorter<Iterator>::Sort(iterator_type begin, iterator_type end) {
         return;
 
     std::vector<value_type> data(begin, end);
-    const size_type count = data.size();
+    const std::size_t count = data.size();
     std::vector<bool> taken(count, false);
     std::vector<value_type> sorted;
     sorted.reserve(count);
 
-    size_type takenCount = 0;
+    std::size_t takenCount = 0;
     while (takenCount < count) {
         std::vector<value_type> run;
-        size_type i = 0;
+        std::size_t i = 0;
         while (i < count && taken[i])
             ++i;
-        if (i == count)
-            break;
         taken[i] = true;
         ++takenCount;
         run.push_back(std::move(data[i]));
@@ -53,8 +46,8 @@ void StrandSorter<Iterator>::Sort(iterator_type begin, iterator_type end) {
 
         std::vector<value_type> merged;
         merged.reserve(sorted.size() + run.size());
-        size_type sortedIndex = 0;
-        size_type runIndex = 0;
+        std::size_t sortedIndex = 0;
+        std::size_t runIndex = 0;
         while (sortedIndex < sorted.size() && runIndex < run.size()) {
             if (run[runIndex] < sorted[sortedIndex])
                 merged.push_back(std::move(run[runIndex++]));

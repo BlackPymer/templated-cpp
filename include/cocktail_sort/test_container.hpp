@@ -15,5 +15,6 @@ class TestContainer : public std::vector<int> {
 
     TestContainer() = default;
     TestContainer(std::initializer_list<value_type> values) : base_type(values) {}
-    template <typename InputIt> TestContainer(InputIt first, InputIt last) : base_type(first, last) {}
+    template <typename InputIt>
+    TestContainer(InputIt first, InputIt last) : base_type(first, last) {}
 };
