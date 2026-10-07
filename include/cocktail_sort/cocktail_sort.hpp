@@ -6,7 +6,6 @@
 
 template <typename T> class CocktailSorter {
     public:
-    // публичные псевдонимы используемых типов (см. ТЗ)
     using iterator_type = T;
     using iterator_category = typename std::iterator_traits<iterator_type>::iterator_category;
     using value_type = typename std::iterator_traits<iterator_type>::value_type;
