@@ -3,12 +3,23 @@ name: CI
 on:
   push:
     branches: [main]
+    tags: ["v*"]
   pull_request:
     branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   lint:
+    name: Линтер
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
 
@@ -29,7 +40,9 @@ jobs:
         run: ./scripts/lint.sh
 
   build:
+    name: Сборка и тесты
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
 
@@ -44,3 +57,73 @@ jobs:
 
       - name: Test
         run: ctest --test-dir build --output-on-failure
+
+  coverage:
+    name: Покрытие
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake g++ pkg-config libunittest++-dev gcovr
+
+      - name: Configure with coverage
+        run: cmake -S . -B build-cov -DCMAKE_BUILD_TYPE=Debug -DLAB4_COVERAGE=ON
+
+      - name: Build
+        run: cmake --build build-cov -j2
+
+      - name: Run tests
+        run: ./build-cov/lab4_tests
+
+      - name: Check coverage
+        working-directory: build-cov
+        run: |
+          gcovr --root "$GITHUB_WORKSPACE" \
+            --filter "$GITHUB_WORKSPACE/include/" \
+            --filter "$GITHUB_WORKSPACE/src/" \
+            --exclude '.*/src/main.cpp' \
+            --fail-under-line 90 \
+            --print-summary \
+            --xml coverage.xml
+
+      - name: Save coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage
+          path: build-cov/coverage.xml
+
+  package:
+    name: Сборка артефакта
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install tools
+        run: sudo apt-get update && sudo apt-get install -y cmake g++ pkg-config libunittest++-dev
+
+      - name: Build release binary
+        run: |
+          cmake -S . -B build-release -DCMAKE_BUILD_TYPE=Release
+          cmake --build build-release --target lab4 --parallel
+          mkdir -p dist/lab4
+          cp build-release/lab4 dist/lab4/lab4
+          cp README.md dist/lab4/README.md
+          tar -czf dist/lab4-linux-x86_64.tar.gz -C dist/lab4 .
+
+      - name: Save artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-archive
+          path: dist/*.tar.gz
+
+      - name: Publish release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*.tar.gz
+          generate_release_notes: true
